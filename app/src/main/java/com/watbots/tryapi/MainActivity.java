@@ -45,9 +45,13 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        ItemFragment listFragment = new ItemFragment();
-        getSupportFragmentManager().beginTransaction()
-                .add(R.id.fragment_container, listFragment).commit();
+        ItemFragment listFragment = (ItemFragment)getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+        if(listFragment == null) {
+            listFragment = new ItemFragment();
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.fragment_container, listFragment).commit();
+        }
+
     }
 
     @Override

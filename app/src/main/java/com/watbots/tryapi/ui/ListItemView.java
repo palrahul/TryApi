@@ -51,14 +51,10 @@ public class ListItemView extends RelativeLayout {
     }
 
     public void bindTo(Item item, Picasso picasso) {
-        if(item.cover_img_url == null) {
-            item.cover_img_url =
-                    "https://doordash-static.s3.amazonaws.com/media/restaurant/cover/Amarin-Thai-Cuisine.png";
-        }
         picasso.load(item.cover_img_url)
                 .placeholder(R.drawable.doordash_def)
                 .fit()
-                .transform(avatarTransformation)
+                //.transform(avatarTransformation)
                 .into(itemLogo);
         itemName.setText(item.name);
         rating.setText(String.valueOf(item.yelp_rating));

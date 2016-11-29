@@ -1,7 +1,6 @@
 package com.watbots.tryapi.api;
 
 import com.watbots.tryapi.model.Item;
-import com.watbots.tryapi.model.ItemListResponse;
 
 import java.util.List;
 

@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.squareup.picasso.Picasso;
 import com.watbots.tryapi.api.ApiService;
 import com.watbots.tryapi.api.Results;
 import com.watbots.tryapi.api.ServiceGenerator;
@@ -22,6 +23,8 @@ import com.watbots.tryapi.util.Funcs;
 import com.watbots.tryapi.util.ResultToItemList;
 
 import java.util.List;
+
+import javax.inject.Inject;
 
 import retrofit2.adapter.rxjava.Result;
 import rx.Observable;
@@ -45,6 +48,9 @@ public class ItemFragment extends Fragment {
     private MyItemRecyclerViewAdapter itemsAdapter;
     private ApiService apiService;
     private List<Item> items;
+
+
+    Picasso picasso ;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -71,7 +77,8 @@ public class ItemFragment extends Fragment {
         if (getArguments() != null) {
             mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT);
         }
-        itemsAdapter = new MyItemRecyclerViewAdapter(mListener);
+        picasso = Picasso.with(getActivity());
+        itemsAdapter = new MyItemRecyclerViewAdapter(picasso, mListener);
         apiService = ServiceGenerator.createService(ApiService.class);
     }
 

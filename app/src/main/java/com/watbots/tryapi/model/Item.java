@@ -1,8 +1,13 @@
 package com.watbots.tryapi.model;
 
+import com.watbots.tryapi.db.RealmString;
+
 import java.util.List;
 
-public class Item {
+import io.realm.RealmList;
+import io.realm.RealmObject;
+
+public class Item extends RealmObject{
 
     public Item() {
 
@@ -15,7 +20,7 @@ public class Item {
     public int delivery_fee;
     public int max_composite_score;
     public int id;
-    public List<Menus> menus;
+    public RealmList<Menus> menus;
     public int composite_score;
     public String status_type;
     public boolean is_only_catering;
@@ -23,7 +28,7 @@ public class Item {
     public String asap_time;
     public String description;
     public Business business;
-    public List<String> tags;
+    public RealmList<RealmString> tags;
     public int yelp_review_count;
     public float yelp_rating;
     public int business_id;

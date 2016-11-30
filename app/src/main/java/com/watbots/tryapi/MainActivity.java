@@ -3,6 +3,8 @@ package com.watbots.tryapi;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -12,9 +14,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
-import com.watbots.tryapi.dummy.DummyContent;
 import com.watbots.tryapi.model.Item;
+
+import io.realm.Realm;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
@@ -23,18 +27,10 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Realm.init(this);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -47,7 +43,7 @@ public class MainActivity extends AppCompatActivity
 
         ItemFragment listFragment = (ItemFragment)getSupportFragmentManager().findFragmentById(R.id.fragment_container);
         if(listFragment == null) {
-            listFragment = new ItemFragment();
+            listFragment = ItemFragment.newInstance(false);
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.fragment_container, listFragment).commit();
         }
@@ -92,18 +88,39 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
+        if (id == R.id.nav_listing) {
+            ItemFragment listFragment = (ItemFragment)getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+            if(listFragment == null) {
+                listFragment = ItemFragment.newInstance(false);
+                getSupportFragmentManager().beginTransaction()
+                        .add(R.id.fragment_container, listFragment)
+                        .commit();
+            } else {
+                listFragment = ItemFragment.newInstance(false);
+                // Replace whatever is in the fragment_container view with this fragment,
+                // and add the transaction to the back stack so the user can navigate back
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.fragment_container, listFragment)
+                        .commit();
+                //transaction.addToBackStack(null); TODO check if we need to add to stack
+            }
+        } else if (id == R.id.nav_saved) {
 
-        } else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
-
+            ItemFragment listFragment = (ItemFragment)getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+            if(listFragment == null) {
+                listFragment = ItemFragment.newInstance(true);
+                getSupportFragmentManager().beginTransaction()
+                        .add(R.id.fragment_container, listFragment)
+                        .commit();
+            } else {
+                listFragment = ItemFragment.newInstance(true);
+                // Replace whatever is in the fragment_container view with this fragment,
+                // and add the transaction to the back stack so the user can navigate back
+                getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_container, listFragment)
+                    .commit();
+                //transaction.addToBackStack(null); TODO check if we need to add to stack
+            }
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -113,6 +130,34 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onListFragmentInteraction(Item item) {
+        addItem(item);
+    }
 
+    private void addItem(final Item item) {
+        Realm.getDefaultInstance()
+                .executeTransactionAsync(realm -> realm.copyToRealm(item),
+                        () -> {
+                            Log.d("MainActivity", "addItem Success");
+                            Toast.makeText(this, item.name + ": Added to Saved", Toast.LENGTH_SHORT)
+                                .show();
+                        },
+                    error -> {
+                        // Transaction failed and was automatically canceled.
+                        Log.e("MainActivity", "addItem Failed !");
+                });
+    }
+
+    private void deleteItem(final Item item) {
+        Realm.getDefaultInstance()
+                .executeTransactionAsync(realm -> realm.where(Item.class).equalTo("id", item.id)
+                .findAll()
+                .deleteAllFromRealm(),
+                () -> {
+                    // Transaction was a success.
+                    Log.d("MainActivity", "deleteItem Success");
+                }, error -> {
+                    // Transaction failed and was automatically canceled.
+                    Log.e("MainActivity", "deleteItem Failed!");
+                });
     }
 }

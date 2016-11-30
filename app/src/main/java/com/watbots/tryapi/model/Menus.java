@@ -1,6 +1,8 @@
 package com.watbots.tryapi.model;
 
-public class Menus {
+import io.realm.RealmObject;
+
+public class Menus extends RealmObject {
     public boolean is_catering;
     public String subtitle;
     public String id;

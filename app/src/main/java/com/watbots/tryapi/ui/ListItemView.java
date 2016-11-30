@@ -2,8 +2,6 @@ package com.watbots.tryapi.ui;
 
 import android.content.Context;
 import android.support.v4.content.ContextCompat;
-import android.text.TextUtils;
-import android.text.style.ForegroundColorSpan;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.widget.ImageView;
@@ -29,8 +27,6 @@ public class ListItemView extends RelativeLayout {
     TextView rating;
     @BindView(R.id.status)
     TextView status;
-    @BindView(R.id.status_type)
-    TextView status_type;
 
     private final CircleStrokeTransformation avatarTransformation;
     private final int descriptionColor;
@@ -62,6 +58,5 @@ public class ListItemView extends RelativeLayout {
         rating.setText(String.valueOf(item.yelp_rating));
         status.setText(String.valueOf(item.status));
         itemDesc.setText(item.description);
-        status_type.setText(item.status_type);
     }
 }

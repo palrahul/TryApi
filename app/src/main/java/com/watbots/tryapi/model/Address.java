@@ -1,6 +1,8 @@
 package com.watbots.tryapi.model;
 
-public class Address {
+import io.realm.RealmObject;
+
+public class Address extends RealmObject {
     public String city;
     public String state;
     public String street;

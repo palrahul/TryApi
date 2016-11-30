@@ -1,10 +1,8 @@
 package com.watbots.tryapi.model;
 
-/**
- * Created by nehasingh on 11/27/16.
- */
+import io.realm.RealmObject;
 
-public class Business {
+public class Business extends RealmObject {
     public int id;
     public String name;
 }

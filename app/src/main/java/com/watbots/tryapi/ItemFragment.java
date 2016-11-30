@@ -3,6 +3,7 @@ package com.watbots.tryapi;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -10,25 +11,21 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 
 import com.squareup.picasso.Picasso;
 import com.watbots.tryapi.api.ApiService;
 import com.watbots.tryapi.api.Results;
 import com.watbots.tryapi.api.ServiceGenerator;
-import com.watbots.tryapi.dummy.DummyContent;
-import com.watbots.tryapi.dummy.DummyContent.DummyItem;
 import com.watbots.tryapi.model.Item;
-import com.watbots.tryapi.model.ItemListResponse;
 import com.watbots.tryapi.util.Funcs;
 import com.watbots.tryapi.util.ResultToItemList;
 
 import java.util.List;
 
-import javax.inject.Inject;
-
+import butterknife.BindDimen;
 import retrofit2.adapter.rxjava.Result;
 import rx.Observable;
-import rx.Scheduler;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
@@ -48,9 +45,9 @@ public class ItemFragment extends Fragment {
     private MyItemRecyclerViewAdapter itemsAdapter;
     private ApiService apiService;
     private List<Item> items;
+    private Picasso picasso ;
 
-
-    Picasso picasso ;
+    @BindDimen(R.dimen.divider_padding_start) float dividerPaddingStart;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -103,6 +100,8 @@ public class ItemFragment extends Fragment {
                 }
 
              });
+            recyclerView.addItemDecoration(
+                    new DividerItemDecoration(getContext(), LinearLayout.VERTICAL));
             recyclerView.setAdapter(itemsAdapter);
         }
         return view;

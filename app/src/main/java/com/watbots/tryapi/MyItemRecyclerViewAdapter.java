@@ -1,6 +1,7 @@
 package com.watbots.tryapi;
 
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -48,20 +49,6 @@ public class MyItemRecyclerViewAdapter extends RecyclerView.Adapter<MyItemRecycl
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.bindTo(items.get(position));
-//        holder.mItem = items.get(position);
-//        holder.mIdView.setText(items.get(position).name);
-//        holder.mContentView.setText(items.get(position).description);
-//
-//        holder.mView.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                if (null != mListener) {
-//                    // Notify the active callbacks interface (the activity, if the
-//                    // fragment is attached to one) that an item has been selected.
-//                    mListener.onListFragmentInteraction(holder.mItem);
-//                }
-//            }
-//        });
     }
 
     @Override
@@ -76,12 +63,19 @@ public class MyItemRecyclerViewAdapter extends RecyclerView.Adapter<MyItemRecycl
         public ViewHolder(ListItemView itemView) {
             super(itemView);
             this.itemView = itemView;
-            this.itemView.setOnClickListener(v -> {
-                Item item = items.get(getAdapterPosition());
-                if (null != mListener) {
-                    // Notify the active callbacks interface (the activity, if the
-                    // fragment is attached to one) that an item has been selected.
-                    mListener.onListFragmentInteraction(item);
+//            this.itemView.setOnLongClickListener(v -> {
+//                Item item = items.get(getAdapterPosition());
+//                if (null != mListener) {
+//                    // Notify the active callbacks interface (the activity, if the
+//                    // fragment is attached to one) that an item has been selected.
+//                    mListener.onListFragmentInteraction(item);
+//                }
+//            });
+            this.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View view) {
+                    Log.d("some", "onLongClick");
+                    return false;
                 }
             });
         }
@@ -90,21 +84,5 @@ public class MyItemRecyclerViewAdapter extends RecyclerView.Adapter<MyItemRecycl
             itemView.bindTo(item, picasso);
         }
 
-//        public final View mView;
-//        public final TextView mIdView;
-//        public final TextView mContentView;
-//        public Item mItem;
-//
-//        public ViewHolder(View view) {
-//            super(view);
-//            mView = view;
-//            mIdView = (TextView) view.findViewById(R.id.id);
-//            mContentView = (TextView) view.findViewById(R.id.content);
-//        }
-//
-//        @Override
-//        public String toString() {
-//            return super.toString() + " '" + mContentView.getText() + "'";
-//        }
     }
 }

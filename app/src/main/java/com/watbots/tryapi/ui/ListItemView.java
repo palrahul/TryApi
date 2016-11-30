@@ -29,6 +29,8 @@ public class ListItemView extends RelativeLayout {
     TextView rating;
     @BindView(R.id.status)
     TextView status;
+    @BindView(R.id.status_type)
+    TextView status_type;
 
     private final CircleStrokeTransformation avatarTransformation;
     private final int descriptionColor;
@@ -59,17 +61,7 @@ public class ListItemView extends RelativeLayout {
         itemName.setText(item.name);
         rating.setText(String.valueOf(item.yelp_rating));
         status.setText(String.valueOf(item.status));
-
-        Truss description = new Truss();
-        description.append(item.status_type);
-
-        if (!TextUtils.isEmpty(item.description)) {
-            description.pushSpan(new ForegroundColorSpan(descriptionColor));
-            description.append(" — ");
-            description.append(item.description);
-            description.popSpan();
-        }
-
-        itemDesc.setText(description.build());
+        itemDesc.setText(item.description);
+        status_type.setText(item.status_type);
     }
 }

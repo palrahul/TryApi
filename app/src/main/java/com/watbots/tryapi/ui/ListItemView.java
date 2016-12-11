@@ -23,10 +23,10 @@ public class ListItemView extends RelativeLayout {
     TextView itemName;
     @BindView(R.id.item_description)
     TextView itemDesc;
-    @BindView(R.id.yelp_stars)
-    TextView rating;
-    @BindView(R.id.status)
-    TextView status;
+    @BindView(R.id.temp_low)
+    TextView low;
+    @BindView(R.id.temp_high)
+    TextView high;
 
     private final CircleStrokeTransformation avatarTransformation;
     private final int descriptionColor;
@@ -51,13 +51,13 @@ public class ListItemView extends RelativeLayout {
     public void bindTo(Item item, Picasso picasso) {
         String imgUrl = "http://l.yimg.com/a/i/us/we/52/" + item.code + ".gif";
         picasso.load(imgUrl)
-                .placeholder(R.drawable.doordash_def)
+                .placeholder(R.drawable.weather_default)
                 .fit()
                 //.transform(avatarTransformation)
                 .into(itemLogo);
-        itemName.setText(item.date + item.day);
-        rating.setText(String.valueOf(item.low));
-        status.setText(String.valueOf(item.high));
+        itemName.setText(item.day + "\t" + item.date);
+        low.setText(String.valueOf(item.low));
+        high.setText(String.valueOf(item.high));
         itemDesc.setText(item.text);
     }
 }

@@ -1,5 +1,5 @@
 package com.watbots.tryapi.util;
-import com.watbots.tryapi.model.Weather;
+import com.watbots.tryapi.model.Item;
 import com.watbots.tryapi.model.WeatherResponse;
 
 import java.util.Collections;
@@ -9,7 +9,7 @@ import retrofit2.adapter.rxjava.Result;
 import rx.functions.Func1;
 
 
-public final class ResultToWeatherList implements Func1<Result<WeatherResponse>, List<Weather>> {
+public final class ResultToWeatherList implements Func1<Result<WeatherResponse>, List<Item>> {
     private static volatile ResultToWeatherList instance;
 
     public static ResultToWeatherList instance() {
@@ -19,12 +19,12 @@ public final class ResultToWeatherList implements Func1<Result<WeatherResponse>,
         return instance;
     }
 
-    @Override public List<Weather> call(Result<WeatherResponse> result) {
-        List<Weather> items = null;
+    @Override public List<Item> call(Result<WeatherResponse> result) {
+        List<Item> items = null;
         WeatherResponse response = result.response().body();
         items = response.query.results.channel.item.forecast;
         return items == null //
-                ? Collections.<Weather>emptyList() //
+                ? Collections.<Item>emptyList() //
                 : items;
     }
 }

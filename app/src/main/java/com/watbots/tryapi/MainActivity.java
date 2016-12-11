@@ -29,6 +29,8 @@ public class MainActivity extends AppCompatActivity
         ItemFragment.OnListFragmentInteractionListener,
         SearchView.OnQueryTextListener{
 
+    private ItemFragment listFragment;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,7 +51,7 @@ public class MainActivity extends AppCompatActivity
         Intent launchIntent = this.getIntent();
         handleIntent(launchIntent);
 
-        ItemFragment listFragment = (ItemFragment)getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+        listFragment = (ItemFragment)getSupportFragmentManager().findFragmentById(R.id.fragment_container);
         if(listFragment == null) {
             listFragment = ItemFragment.newInstance(false);
             getSupportFragmentManager().beginTransaction()
@@ -111,6 +113,9 @@ public class MainActivity extends AppCompatActivity
         if (intent != null && Intent.ACTION_SEARCH.equals(intent.getAction())) {
             String query = intent.getStringExtra(SearchManager.QUERY);
             Log.d("MainActivity", "query: " + query);
+            if(query != null) {
+                listFragment.populateList(query);
+            }
         }
     }
 
@@ -133,7 +138,7 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_listing) {
-            ItemFragment listFragment = (ItemFragment)getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+            listFragment = (ItemFragment)getSupportFragmentManager().findFragmentById(R.id.fragment_container);
             if(listFragment == null) {
                 listFragment = ItemFragment.newInstance(false);
                 getSupportFragmentManager().beginTransaction()
@@ -150,7 +155,7 @@ public class MainActivity extends AppCompatActivity
             }
         } else if (id == R.id.nav_saved) {
 
-            ItemFragment listFragment = (ItemFragment)getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+            listFragment = (ItemFragment)getSupportFragmentManager().findFragmentById(R.id.fragment_container);
             if(listFragment == null) {
                 listFragment = ItemFragment.newInstance(true);
                 getSupportFragmentManager().beginTransaction()
@@ -182,7 +187,7 @@ public class MainActivity extends AppCompatActivity
                 .executeTransactionAsync(realm -> realm.copyToRealm(item),
                         () -> {
                             Log.d("MainActivity", "addItem Success");
-                            Toast.makeText(this, item.name + ": Added to Saved", Toast.LENGTH_SHORT)
+                            Toast.makeText(this, item.date + ": Added to Saved", Toast.LENGTH_SHORT)
                                 .show();
                         },
                     error -> {
@@ -193,7 +198,7 @@ public class MainActivity extends AppCompatActivity
 
     private void deleteItem(final Item item) {
         Realm.getDefaultInstance()
-                .executeTransactionAsync(realm -> realm.where(Item.class).equalTo("id", item.id)
+                .executeTransactionAsync(realm -> realm.where(Item.class).equalTo("id", item.date)
                 .findAll()
                 .deleteAllFromRealm(),
                 () -> {

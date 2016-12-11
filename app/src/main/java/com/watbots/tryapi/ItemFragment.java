@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 
 import com.squareup.picasso.Picasso;
 import com.watbots.tryapi.api.ApiService;
@@ -18,12 +19,13 @@ import com.watbots.tryapi.api.ServiceGenerator;
 import com.watbots.tryapi.model.Item;
 import com.watbots.tryapi.model.WeatherResponse;
 import com.watbots.tryapi.util.Funcs;
-import com.watbots.tryapi.util.ResultToItemList;
 import com.watbots.tryapi.util.ResultToWeatherList;
 
 import java.util.List;
 
 import butterknife.BindDimen;
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import io.realm.Realm;
 import retrofit2.adapter.rxjava.Result;
 import rx.Observable;
@@ -46,9 +48,14 @@ public class ItemFragment extends Fragment {
     private Picasso picasso ;
     private Realm realm;
     private boolean showSaved = false;
+    private String apiQueryParam;
 
-    @BindDimen(R.dimen.divider_padding_start) float dividerPaddingStart;
-
+    @BindDimen(R.dimen.divider_padding_start)
+    float dividerPaddingStart;
+    @BindView(R.id.list)
+    RecyclerView list;
+    @BindView(R.id.progress_spinner)
+    ProgressBar spinnerProgress;
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
@@ -83,21 +90,19 @@ public class ItemFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_item_list, container, false);
+        ButterKnife.bind(this, view);
 
         // Set the adapter
-        if (view instanceof RecyclerView) {
-            RecyclerView recyclerView = (RecyclerView) view;
+        itemsAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+            @Override public void onChanged() {
+                //TODO handle case when empty , show loading
+            }
 
-            itemsAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
-                @Override public void onChanged() {
-                    //TODO handle case when empty , show loading
-                }
+         });
+        list.addItemDecoration(
+                new DividerItemDecoration(getContext(), LinearLayout.VERTICAL));
+        list.setAdapter(itemsAdapter);
 
-             });
-            recyclerView.addItemDecoration(
-                    new DividerItemDecoration(getContext(), LinearLayout.VERTICAL));
-            recyclerView.setAdapter(itemsAdapter);
-        }
         return view;
     }
 
@@ -128,43 +133,10 @@ public class ItemFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        if(apiQueryParam != null) {
+            populateList(apiQueryParam);
+        }
 
-        String query = "select * from weather.forecast where woeid in (select woeid from geo.places(1) where text=\"nome, ak\")";
-        String format = "json";
-
-        Observable<Result<WeatherResponse>> result =
-                apiService.getItemList(query, format)
-                        .subscribeOn(Schedulers.io())
-                        .doOnError(some -> Log.e("ItemFragment", "API FAIL !!! :", some))
-                        .share();
-
-//        Observable<Result<List<Item>>> result =
-//                apiService.getItemList(query, format)
-//                        .subscribeOn(Schedulers.io())
-//                        .doOnError(some -> Log.e("ItemFragment", "API FAIL !!! :", some))
-//                        .share();
-//        result
-//                .filter(Results.isSuccessful())
-//                .map(ResultToItemList.instance())
-//                .observeOn(AndroidSchedulers.mainThread())
-//                .subscribe(itemsAdapter);
-//
-
-        result
-            .filter(Results.isSuccessful())
-            .map(ResultToWeatherList.instance())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(some -> {
-                Log.e("ItemFragment", "Result: " + some.size());
-            });
-
-        result //
-                .filter(Funcs.not(Results.isSuccessful())) //
-                .subscribe(some -> {
-                    Log.e("ItemFragment", "Unable to load results from API !!");
-                });
-
-        //TODO add doUntil with a subject for finishing subsciptions and emit on it from onPause
     }
 
     @Override
@@ -185,5 +157,51 @@ public class ItemFragment extends Fragment {
     public interface OnListFragmentInteractionListener {
         // TODO: Update argument type and name
         void onListFragmentInteraction(Item item);
+    }
+
+    public void populateList(String query) {
+        this.apiQueryParam = query;
+        String text = String.format(
+                "select * from weather.forecast where woeid in (select woeid from geo.places(1) where text=\"%s\")",
+                query
+        );
+        String format = "json";
+
+        Observable<Result<WeatherResponse>> result =
+                apiService.getItemList(text, format)
+                        .subscribeOn(Schedulers.io())
+                        .doOnError(some -> Log.e("ItemFragment", "API FAIL !!! :", some))
+                        .share();
+
+//        Observable<Result<List<Item>>> result =
+//                apiService.getItemList(query, format)
+//                        .subscribeOn(Schedulers.io())
+//                        .doOnError(some -> Log.e("ItemFragment", "API FAIL !!! :", some))
+//                        .share();
+//        result
+//                .filter(Results.isSuccessful())
+//                .map(ResultToItemList.instance())
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .subscribe(itemsAdapter);
+//
+
+        result
+                .filter(Results.isSuccessful())
+                .map(ResultToWeatherList.instance())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(some -> {
+                    Log.e("ItemFragment", "Result: " + some.size());
+                    spinnerProgress.setVisibility(View.GONE);
+                    list.setVisibility(View.VISIBLE);
+                    itemsAdapter.call(some);
+                });
+
+        result //
+                .filter(Funcs.not(Results.isSuccessful())) //
+                .subscribe(some -> {
+                    Log.e("ItemFragment", "Unable to load results from API !!");
+                });
+
+        //TODO add doUntil with a subject for finishing subsciptions and emit on it from onPause
     }
 }

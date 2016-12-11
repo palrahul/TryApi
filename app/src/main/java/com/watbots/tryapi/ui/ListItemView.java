@@ -49,14 +49,15 @@ public class ListItemView extends RelativeLayout {
     }
 
     public void bindTo(Item item, Picasso picasso) {
-        picasso.load(item.cover_img_url)
+        String imgUrl = "http://l.yimg.com/a/i/us/we/52/" + item.code + ".gif";
+        picasso.load(imgUrl)
                 .placeholder(R.drawable.doordash_def)
                 .fit()
                 //.transform(avatarTransformation)
                 .into(itemLogo);
-        itemName.setText(item.name);
-        rating.setText(String.valueOf(item.yelp_rating));
-        status.setText(String.valueOf(item.status));
-        itemDesc.setText(item.description);
+        itemName.setText(item.date + item.day);
+        rating.setText(String.valueOf(item.low));
+        status.setText(String.valueOf(item.high));
+        itemDesc.setText(item.text);
     }
 }

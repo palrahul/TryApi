@@ -27,7 +27,7 @@ import retrofit2.converter.moshi.MoshiConverterFactory;
 
 public class ServiceGenerator {
 
-    private static final String BASE_URL = "https://api.doordash.com";
+    private static final String BASE_URL = "https://query.yahooapis.com";
     private static final String AUTHORISATION_KEY = "Authorization";
     private static final String AUTHORISATION_VALUE = "Token ";
 

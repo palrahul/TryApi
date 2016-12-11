@@ -1,6 +1,7 @@
 package com.watbots.tryapi.api;
 
 import com.watbots.tryapi.model.Item;
+import com.watbots.tryapi.model.WeatherResponse;
 
 import java.util.List;
 
@@ -12,14 +13,19 @@ import rx.Observable;
 
 public interface ApiService {
 
-    @GET("/v2/restaurant/")
-    Observable<Result<List<Item>>> getRestaurantList(
-            @Query("lat") double latitude,
-            @Query("lng") double longitude
-    );
-
-    @GET("/v2/restaurant/{restaurantId}")
-    Observable<Result<Item>> getRestaurant(
-            @Path("restaurantId") String restaurantId
+//    @GET("/v2/restaurant/")
+//    Observable<Result<List<Item>>> getItemList(
+//            @Query("lat") double latitude,
+//            @Query("lng") double longitude
+//    );
+//
+//    @GET("/v2/restaurant/{restaurantId}")
+//    Observable<Result<Item>> getRestaurant(
+//            @Path("restaurantId") String restaurantId
+//    );
+    @GET("/v1/public/yql")
+    Observable<Result<WeatherResponse>> getItemList(
+            @Query("q") String query,
+            @Query("format") String format
     );
 }

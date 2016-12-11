@@ -16,8 +16,10 @@ import com.watbots.tryapi.api.ApiService;
 import com.watbots.tryapi.api.Results;
 import com.watbots.tryapi.api.ServiceGenerator;
 import com.watbots.tryapi.model.Item;
+import com.watbots.tryapi.model.WeatherResponse;
 import com.watbots.tryapi.util.Funcs;
 import com.watbots.tryapi.util.ResultToItemList;
+import com.watbots.tryapi.util.ResultToWeatherList;
 
 import java.util.List;
 
@@ -127,16 +129,34 @@ public class ItemFragment extends Fragment {
     public void onResume() {
         super.onResume();
 
-        Observable<Result<List<Item>>> result =
-                apiService.getRestaurantList(37.422740, -122.139956)
+        String query = "select * from weather.forecast where woeid in (select woeid from geo.places(1) where text=\"nome, ak\")";
+        String format = "json";
+
+        Observable<Result<WeatherResponse>> result =
+                apiService.getItemList(query, format)
                         .subscribeOn(Schedulers.io())
                         .doOnError(some -> Log.e("ItemFragment", "API FAIL !!! :", some))
                         .share();
+
+//        Observable<Result<List<Item>>> result =
+//                apiService.getItemList(query, format)
+//                        .subscribeOn(Schedulers.io())
+//                        .doOnError(some -> Log.e("ItemFragment", "API FAIL !!! :", some))
+//                        .share();
+//        result
+//                .filter(Results.isSuccessful())
+//                .map(ResultToItemList.instance())
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .subscribe(itemsAdapter);
+//
+
         result
-                .filter(Results.isSuccessful())
-                .map(ResultToItemList.instance())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(itemsAdapter);
+            .filter(Results.isSuccessful())
+            .map(ResultToWeatherList.instance())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(some -> {
+                Log.e("ItemFragment", "Result: " + some.size());
+            });
 
         result //
                 .filter(Funcs.not(Results.isSuccessful())) //

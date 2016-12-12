@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 import com.watbots.tryapi.api.ApiService;
@@ -56,6 +57,8 @@ public class ItemFragment extends Fragment {
     RecyclerView list;
     @BindView(R.id.progress_spinner)
     ProgressBar spinnerProgress;
+    @BindView(R.id.status)
+    TextView status;
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
@@ -160,6 +163,7 @@ public class ItemFragment extends Fragment {
     }
 
     public void populateList(String query) {
+        spinnerProgress.setVisibility(View.VISIBLE);
         this.apiQueryParam = query;
         String text = String.format(
                 "select * from weather.forecast where woeid in (select woeid from geo.places(1) where text=\"%s\")",
@@ -193,13 +197,23 @@ public class ItemFragment extends Fragment {
                     Log.e("ItemFragment", "Result: " + some.size());
                     spinnerProgress.setVisibility(View.GONE);
                     list.setVisibility(View.VISIBLE);
-                    itemsAdapter.call(some);
+                    if(some.size() < 1) {
+                        list.setVisibility(View.INVISIBLE);
+                        status.setText("No weather Data found !!. Please check the City , State entered");
+                    } else {
+                        list.setVisibility(View.VISIBLE);
+                        status.setVisibility(View.GONE);
+                        itemsAdapter.call(some);
+                    }
                 });
 
         result //
                 .filter(Funcs.not(Results.isSuccessful())) //
                 .subscribe(some -> {
                     Log.e("ItemFragment", "Unable to load results from API !!");
+                    list.setVisibility(View.INVISIBLE);
+                    spinnerProgress.setVisibility(View.GONE);
+                    status.setText("Check Network settings and Reload !! ");
                 });
 
         //TODO add doUntil with a subject for finishing subsciptions and emit on it from onPause

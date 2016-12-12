@@ -21,8 +21,10 @@ public final class ResultToWeatherList implements Func1<Result<WeatherResponse>,
 
     @Override public List<Item> call(Result<WeatherResponse> result) {
         List<Item> items = null;
-        WeatherResponse response = result.response().body();
-        items = response.query.results.channel.item.forecast;
+        if(result.response().isSuccessful()) {
+            WeatherResponse response = result.response().body();
+            items = response.query.results.channel.item.forecast;
+        }
         return items == null //
                 ? Collections.<Item>emptyList() //
                 : items;

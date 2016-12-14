@@ -29,9 +29,10 @@ public class ServiceGenerator {
 
     private static final String BASE_URL = "https://api.doordash.com";
     private static final String AUTHORISATION_KEY = "Authorization";
-    private static final String AUTHORISATION_VALUE = "Token ";
+    private static final String AUTHORISATION_VALUE = "JWT ";
 
-    private static final String SERVER_TOKEN = "";
+
+    private static String token;
 
     private static OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
 
@@ -42,8 +43,7 @@ public class ServiceGenerator {
         public Response intercept(Chain chain) throws IOException {
             Request request = chain.request()
                     .newBuilder()
-                    //TODO for login add later
-                    //.addHeader(AUTHORISATION_KEY, AUTHORISATION_VALUE + SERVER_TOKEN)
+                    .addHeader(AUTHORISATION_KEY, AUTHORISATION_VALUE + getToken())
                     .build();
             return chain.proceed(request);
         }
@@ -54,10 +54,12 @@ public class ServiceGenerator {
             .addConverterFactory(buildGsonConverter())
             .addCallAdapterFactory(RxJavaCallAdapterFactory.create());
 
-    public static <Res> Res createService(Class<Res> serviceClass) {
+    public static <Res> Res createService(Class<Res> serviceClass, boolean provideAuth) {
         logging.setLevel(HttpLoggingInterceptor.Level.BODY);
         httpClient.addInterceptor(logging);
-        //httpClient.networkInterceptors().add(headerInterceptor);
+        if(provideAuth) {
+            httpClient.networkInterceptors().add(headerInterceptor);
+        }
         Retrofit retrofit = builder.client(httpClient.build()).build();
         return retrofit.create(serviceClass);
 
@@ -100,6 +102,15 @@ public class ServiceGenerator {
                 .create();
 
         return GsonConverterFactory.create(gson);
+    }
+
+
+    public static String getToken() {
+        return token;
+    }
+
+    public static void setToken(String tokenId) {
+        token = tokenId;
     }
 
 }

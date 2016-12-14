@@ -39,7 +39,9 @@ public class ItemFragment extends Fragment {
     private static final String SHOW_SAVED = "show-saved";
     private OnListFragmentInteractionListener mListener;
     private MyItemRecyclerViewAdapter itemsAdapter;
-    private ApiService apiService;
+    private ApiService unauthApiService;
+    private ApiService authApiService;
+
     private List<Item> items;
     private Picasso picasso ;
     private Realm realm;
@@ -74,7 +76,8 @@ public class ItemFragment extends Fragment {
         realm = Realm.getDefaultInstance();
         itemsAdapter = new MyItemRecyclerViewAdapter(picasso, mListener,
                 realm.where(Item.class).findAllAsync(), showSaved);
-        apiService = ServiceGenerator.createService(ApiService.class);
+        unauthApiService = ServiceGenerator.createService(ApiService.class, false);
+        authApiService = ServiceGenerator.createService(ApiService.class, true);
     }
 
     @Override
@@ -127,16 +130,32 @@ public class ItemFragment extends Fragment {
     public void onResume() {
         super.onResume();
 
+        if(ServiceGenerator.getToken() == null) {
+            unauthApiService.getAuthToken("some@xyz.com", "somepass")
+                    .subscribeOn(Schedulers.io())
+                    .take(1)
+                    .doOnError(some -> Log.e("ItemFragment", some.getLocalizedMessage()))
+                    .subscribe(token -> {
+                        Log.d("ItemFrag", token.token);
+                        ServiceGenerator.setToken(token.token);
+
+                        //do something after login succeeds
+
+                    });
+        }
+
         Observable<Result<List<Item>>> result =
-                apiService.getRestaurantList(37.422740, -122.139956)
+                unauthApiService.getRestaurantList(37.422740, -122.139956)
                         .subscribeOn(Schedulers.io())
+                        //.take(1)
                         .doOnError(some -> Log.e("ItemFragment", "API FAIL !!! :", some))
                         .share();
         result
                 .filter(Results.isSuccessful())
                 .map(ResultToItemList.instance())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(itemsAdapter);
+                .subscribe(some ->
+                        itemsAdapter.call(some));
 
         result //
                 .filter(Funcs.not(Results.isSuccessful())) //
